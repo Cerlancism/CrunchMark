@@ -41,9 +41,9 @@ namespace CrunchMark
                     {
                         try
                         {
-                            lock (CrunchMark.HasheResults)
+                            lock (CrunchMark.HashVolume)
                             {
-                                int currentTotal = CrunchMark.HasheResults.Sum();
+                                int currentTotal = CrunchMark.HashVolume.Sum();
                                 LoadProgress();
                                 double deltaTime = (DateTime.Now - previousTime).TotalMilliseconds;
                                 previousTime = DateTime.Now;

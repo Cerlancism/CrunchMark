@@ -9,7 +9,7 @@ namespace CrunchMark
 {
     public class CrunchMark
     {
-        public static List<int> HasheResults { get; set; } = new List<int>();
+        public static List<int> HashVolume { get; set; } = new List<int>();
 
         private static List<CrunchMark> threads = new List<CrunchMark>();
         private static int currentThread = 0;
@@ -21,7 +21,7 @@ namespace CrunchMark
 
         public CrunchMark()
         {
-            HasheResults.Add(0);
+            HashVolume.Add(0);
             threadId = currentThread++;
             threads.Add(this);
             hasher = SHA512.Create();
@@ -37,16 +37,16 @@ namespace CrunchMark
                 while (!toStop)
                 {
                     randomPool.GetBytes(source);
-                    GetMd5Hash(hasher, source);
-                    lock (HasheResults)
+                    GetHash(hasher, source);
+                    lock (HashVolume)
                     {
-                        HasheResults[threadId]++;
+                        HashVolume[threadId]++;
                     }
                 }
             });
         }
 
-        string GetMd5Hash(HashAlgorithm hasher, byte[] input)
+        string GetHash(HashAlgorithm hasher, byte[] input)
         {
             byte[] data = hasher.ComputeHash(input);
             StringBuilder sBuilder = new StringBuilder();
@@ -66,7 +66,7 @@ namespace CrunchMark
 
         public static void ClearAll()
         {
-            HasheResults = HasheResults.ConvertAll(x => x = 0);
+            HashVolume = HashVolume.ConvertAll(x => x = 0);
         }
     }
 }
