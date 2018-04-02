@@ -7,6 +7,8 @@ using System.Security.Cryptography;
 
 namespace CrunchMark
 {
+    using static Program;
+
     public class CrunchMark
     {
         public static List<int> HashVolume { get; set; } = new List<int>();
@@ -26,12 +28,12 @@ namespace CrunchMark
             threads.Add(this);
             hasher = SHA512.Create();
             source = new byte[8192];
-            Program.LoadProgress();
+            OnLoadProgress();
         }
 
         public void Start()
         {
-            Program.LoadProgress();
+            OnLoadProgress();   
             Task.Run(() =>
             {
                 while (!toStop)

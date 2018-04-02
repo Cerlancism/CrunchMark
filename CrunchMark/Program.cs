@@ -8,14 +8,18 @@ namespace CrunchMark
 {
     public class Program
     {
-        static double loadTasks = Environment.ProcessorCount * 3 + 6;
-        static double currentLoadProgress = 0;
+        static int loadTasks = Environment.ProcessorCount * 3 + 6;
+        static int currentLoadProgress = 0;
         static int runcount = 0;
         static Timer timer;
 
+        public delegate void LoadProgressHandler(LoadProgressEventArg e);
+        public static event LoadProgressHandler LoadProgressEvent = new LoadProgressHandler((loadEvent) => { });
+
         public static void Main()
         {
-            LoadProgress();
+            LoadProgressEvent += HandleLoadProgress;
+            OnLoadProgress();
 
             for (int i = 0; i < Environment.ProcessorCount; i++)
             {
@@ -31,7 +35,7 @@ namespace CrunchMark
                 timer.Elapsed += (s, e) =>
                 {
                     runcount++;
-                    LoadProgress();
+                    OnLoadProgress();
                     timer.Stop();
 
                     bool countFailed = false;
@@ -44,7 +48,7 @@ namespace CrunchMark
                             lock (CrunchMark.HashVolume)
                             {
                                 int currentTotal = CrunchMark.HashVolume.Sum();
-                                LoadProgress();
+                                OnLoadProgress();
                                 double deltaTime = (DateTime.Now - previousTime).TotalMilliseconds;
                                 previousTime = DateTime.Now;
                                 currentTotal = (int)((currentTotal * 1.0) / deltaTime * 1000);
@@ -81,7 +85,7 @@ namespace CrunchMark
                     }
                     while (countFailed);
 
-                    LoadProgress();
+                    OnLoadProgress();
                     timer.Start();
                 };
             });
@@ -89,13 +93,32 @@ namespace CrunchMark
             Console.ReadLine();
         }
 
-        public static void LoadProgress()
+        public static void OnLoadProgress()
+        {
+            LoadProgressEvent(new LoadProgressEventArg(currentLoadProgress++, loadTasks));
+        }
+
+        public static void HandleLoadProgress(LoadProgressEventArg e)
         {
             if (runcount <= 2)
             {
                 Console.Clear();
-                Console.WriteLine($"Initialising {string.Format("{0:p0}", currentLoadProgress++ / loadTasks)}\t Algortihm: SHA-512 8192 bytes payload");
+                Console.WriteLine($"Initialising {string.Format("{0:p0}", e.ProgressPercent)}\t Algortihm: SHA-512 8192 bytes payload");
             }
+        }
+    }
+
+    public class LoadProgressEventArg : EventArgs
+    {
+        public float ProgressPercent { get => current / (float)total; }
+
+        private int current;
+        private int total;
+
+        public LoadProgressEventArg(int current, int total)
+        {
+            this.current = current;
+            this.total = total;
         }
     }
 }
