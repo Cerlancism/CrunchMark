@@ -3,7 +3,7 @@ A simple and intense CPU benchmarking and temperature stress test in .NET, runni
 
 ## Average Scores
 ```
-i7-8700             72k
+i7-8700             78k
 E5-2643 v3          59k
 i7-4790k            44k
 i5-6300HQ           31k
