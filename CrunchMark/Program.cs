@@ -12,13 +12,28 @@ namespace CrunchMark
         static int currentLoadProgress = 0;
         static int runcount = 0;
         static Timer timer;
+        public static bool BurnDisk = false;
 
-        public delegate void LoadProgressHandler(LoadProgressEventArg e);
-        public static event LoadProgressHandler LoadProgressEvent = new LoadProgressHandler((loadEvent) => { });
+
+        public static event Action<int, int> LoadProgressEvent;
 
         public static void Main()
         {
-            LoadProgressEvent += HandleLoadProgress;
+            Console.WriteLine("Burn Disk? Y/N");
+            string input = Console.ReadLine();
+            if (input.ToLower() == "y")
+            {
+                BurnDisk = true;
+            }
+
+            LoadProgressEvent += (current, totall) =>
+            {
+                if (runcount <= 2)
+                {
+                    Console.Clear();
+                    Console.WriteLine($"Initialising {string.Format("{0:p0}", (float)current / totall)}\t Algortihm: SHA-512 8192 bytes payload");
+                }
+            };
             OnLoadProgress();
 
             for (int i = 0; i < Environment.ProcessorCount; i++)
@@ -95,16 +110,7 @@ namespace CrunchMark
 
         public static void OnLoadProgress()
         {
-            LoadProgressEvent(new LoadProgressEventArg(currentLoadProgress++, loadTasks));
-        }
-
-        public static void HandleLoadProgress(LoadProgressEventArg e)
-        {
-            if (runcount <= 2)
-            {
-                Console.Clear();
-                Console.WriteLine($"Initialising {string.Format("{0:p0}", e.ProgressPercent)}\t Algortihm: SHA-512 8192 bytes payload");
-            }
+            LoadProgressEvent(currentLoadProgress++, loadTasks);
         }
     }
 
