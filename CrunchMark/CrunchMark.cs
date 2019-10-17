@@ -23,7 +23,7 @@ namespace CrunchMark
         private HashAlgorithm hasher;
         private byte[] source;
 
-        public CrunchMark()
+        public CrunchMark(int size)
         {
             randomSimplePool = new Random();
             randomPool = RandomNumberGenerator.Create();
@@ -32,7 +32,9 @@ namespace CrunchMark
             threadId = currentThread++;
             threads.Add(this);
             hasher = MD5.Create();
-            source = new byte[(int)Math.Pow(2, 17)];
+
+            source = new byte[size];
+
             OnLoadProgress();
         }
 
@@ -44,13 +46,13 @@ namespace CrunchMark
                 while (true)
                 {
                     randomPool.GetBytes(source);
-                    string hash = GetHash(hasher, source);
+                    string hash = ComputeHash(hasher, source);
 
                     if (BurnDisk)
                     {
                         var directory = Directory.GetCurrentDirectory() + @"\BurnFiles";
 
-                        File.WriteAllBytes(directory + $@"\{hash}.dat", source);
+                        File.WriteAllText(directory + $@"\{hash}.dat", BytesToHexString(source));
                     }
 
                     lock (HashVolume)
@@ -61,20 +63,21 @@ namespace CrunchMark
             });
         }
 
-        string GetHash(HashAlgorithm hasher, byte[] input)
+        string ComputeHash(HashAlgorithm hasher, byte[] input)
         {
             byte[] data = hasher.ComputeHash(input);
-            return GetStringHex(data);
+            return BytesToHexString(data);
         }
 
-        string GetStringHex(byte[] input)
+        string BytesToHexString(byte[] input)
         {
-            StringBuilder sBuilder = new StringBuilder();
-            for (int i = 0; i < input.Length; i++)
-            {
-                sBuilder.Append(input[i].ToString("x2"));
-            }
-            return sBuilder.ToString();
+            //StringBuilder sBuilder = new StringBuilder();
+            //for (int i = 0; i < input.Length; i++)
+            //{
+            //    sBuilder.Append(input[i].ToString("x2"));
+            //}
+            //return sBuilder.ToString();
+            return string.Concat(input.Select(b => b.ToString("x2")));
         }
 
         public static void StartAll()

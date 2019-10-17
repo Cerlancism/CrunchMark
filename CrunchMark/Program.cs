@@ -26,11 +26,28 @@ namespace CrunchMark
                 BurnDisk = true;
             }
 
+            Console.WriteLine("Enter crunch size in the power of 2: ");
+            var inputSize = Console.ReadLine();
+            var crunchSize = 0;
+            if (int.TryParse(inputSize, out int power) && power < 30)
+            {
+                crunchSize = (int)Math.Pow(2, power - 1);
+                Console.WriteLine($"Using {crunchSize * 2} byte file size.");
+            }
+            else
+            {
+                crunchSize = (int)Math.Pow(2, 15);
+                Console.WriteLine($"Invalid input, redirected to {crunchSize * 2} byte file size.");
+            }
+
+            Console.WriteLine();
+
             LoadProgressEvent += (current, totall) =>
             {
                 if (runcount <= 2)
                 {
-                    Console.Clear();
+                    Console.SetCursorPosition(0, Console.CursorTop - 1);
+                    ClearCurrentConsoleLine();
                     Console.WriteLine($"Initialising {string.Format("{0:p0}", (float)current / totall)}\t Algortihm: SHA-512 8192 bytes payload");
                 }
             };
@@ -38,7 +55,7 @@ namespace CrunchMark
 
             for (int i = 0; i < Environment.ProcessorCount; i++)
             {
-                new CrunchMark();
+                new CrunchMark(crunchSize);
             }
 
             var previousTime = DateTime.Now;
@@ -70,7 +87,8 @@ namespace CrunchMark
 
                                 if (runcount == 3)
                                 {
-                                    Console.Clear();
+                                    Console.SetCursorPosition(0, Console.CursorTop - 1);
+                                    ClearCurrentConsoleLine();
                                     Console.WriteLine("Thread count: " + Environment.ProcessorCount);
                                     Console.ForegroundColor = ConsoleColor.Yellow;
                                     Console.WriteLine("Yellow line: time delta more than 1100 or encountered 1 threading error, which can cause inconsistency.");
@@ -106,6 +124,14 @@ namespace CrunchMark
             });
 
             Console.ReadLine();
+        }
+
+        public static void ClearCurrentConsoleLine()
+        {
+            int currentLineCursor = Console.CursorTop;
+            Console.SetCursorPosition(0, Console.CursorTop);
+            Console.Write(new string(' ', Console.WindowWidth));
+            Console.SetCursorPosition(0, currentLineCursor);
         }
 
         public static void OnLoadProgress()
