@@ -71,13 +71,13 @@ namespace CrunchMark
 
         string BytesToHexString(byte[] input)
         {
-            //StringBuilder sBuilder = new StringBuilder();
-            //for (int i = 0; i < input.Length; i++)
-            //{
-            //    sBuilder.Append(input[i].ToString("x2"));
-            //}
-            //return sBuilder.ToString();
-            return string.Concat(input.Select(b => b.ToString("x2")));
+            StringBuilder sBuilder = new StringBuilder();
+            for (int i = 0; i < input.Length; i++)
+            {
+                sBuilder.Append(input[i].ToString("x2"));
+            }
+            return sBuilder.ToString();
+            //return string.Concat(input.Select(b => b.ToString("x2")));
         }
 
         public static void StartAll()

@@ -29,15 +29,15 @@ namespace CrunchMark
             Console.WriteLine("Enter crunch size in the power of 2: ");
             var inputSize = Console.ReadLine();
             var crunchSize = 0;
-            if (int.TryParse(inputSize, out int power) && power < 30)
+            if (int.TryParse(inputSize, out int power) && power < 31)
             {
                 crunchSize = (int)Math.Pow(2, power - 1);
-                Console.WriteLine($"Using {crunchSize * 2} byte file size.");
+                Console.WriteLine($"Using {crunchSize * 2:n0} byte file size.");
             }
             else
             {
                 crunchSize = (int)Math.Pow(2, 15);
-                Console.WriteLine($"Invalid input, redirected to {crunchSize * 2} byte file size.");
+                Console.WriteLine($"Invalid input, redirected to {crunchSize * 2: n0} byte file size.");
             }
 
             Console.WriteLine();
@@ -53,10 +53,18 @@ namespace CrunchMark
             };
             OnLoadProgress();
 
-            for (int i = 0; i < Environment.ProcessorCount; i++)
+            if (!BurnDisk)
+            {
+                for (int i = 0; i < Environment.ProcessorCount; i++)
+                {
+                    new CrunchMark(crunchSize);
+                }
+            }
+            else
             {
                 new CrunchMark(crunchSize);
             }
+            
 
             var previousTime = DateTime.Now;
             var threadTracker = Task.Run(() =>
