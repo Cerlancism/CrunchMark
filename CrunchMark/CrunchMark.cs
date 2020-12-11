@@ -39,16 +39,17 @@ namespace CrunchMark
                 while (!toStop)
                 {
                     randomPool.GetBytes(source);
-                    GetHash(hasher, source);
+                    var hash = GetHash(hasher, source);
                     lock (HashVolume)
                     {
-                        HashVolume[threadId]++;
+                        var sum = hash.Sum(x => x);
+                        HashVolume[threadId] += sum / (sum * 2) + 1;
                     }
                 }
             });
         }
 
-        string GetHash(HashAlgorithm hasher, byte[] input)
+        static string GetHash(HashAlgorithm hasher, byte[] input)
         {
             byte[] data = hasher.ComputeHash(input);
             StringBuilder sBuilder = new StringBuilder();
